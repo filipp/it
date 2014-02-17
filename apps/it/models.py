@@ -12,9 +12,13 @@ class Attachment(models.Model):
     content_object = generic.GenericForeignKey("content_type", "object_id")
 
     @classmethod
-    def get_content_type(self, model):
+    def get_content_type(cls, model):
         return ContentType.objects.get(app_label='it', model=model)
 
+    @classmethod
+    def get_files(cls, model):
+        ct = ContentType.objects.get_for_model()
+        return cls.objects.filter(content_type=ct, object_id=model.pk)
 
 class Issue(models.Model):
     description = models.TextField()

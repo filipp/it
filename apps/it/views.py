@@ -30,6 +30,7 @@ def search(request):
 
 def view_issue(request, pk):
     issue = Issue.objects.get(pk=pk)
+    files = Attachment.objects.filter(content_object=issue)
     return render(request, "view_issue.html", locals())
 
 def edit_issue(request, pk=None):
