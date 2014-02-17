@@ -1,0 +1,14 @@
+{% extends "default.html" %}
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block main %}
+    <p>{{ issue.description }}</p>
+    {% for i in issue.task_set.all %}
+        <p>{{ i.description }}</p>
+    {% endfor %}
+    <form action="{% url 'add_files' issue.pk %}" class="dropzone" id="my-awesome-dropzone"></form>
+    <a class="btn btn-default" href="{% url 'edit_issue' issue.pk %}">Edit</a>
+    <a class="btn btn-default" href="{% url 'add_task' issue.pk %}">Add Task</a>
+    <a class="btn btn-default metoo" href="{% url 'metoo' issue.pk 1 %}">Me too!</a>
+{% endblock main %}

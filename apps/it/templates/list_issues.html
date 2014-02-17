@@ -1,0 +1,12 @@
+{% extends "default.html" %}
+
+{% block main %}
+    <table class="table">
+    {% for i in issues %}
+        <tr>
+            <td><a href="{% url 'view_issue' i.pk %}">{{ i.description }}</a></td>
+            <td><a class="btn btn-default btn-sm metoo" href="{% url 'metoo' i.pk 1 %}">Me too!</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock main %}
