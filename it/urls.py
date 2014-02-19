@@ -10,6 +10,7 @@ urlpatterns = patterns('apps.it',
     url(r'^issues/add/$', 'views.edit_issue', name='add_issue'),
     url(r'^issues/(\d+)/$', 'views.view_issue', name='view_issue'),
     url(r'^issues/(\d+)/edit/$', 'views.edit_issue', name='edit_issue'),
+    url(r'^issues/(\d+)/delete/$', 'views.delete_issue', name='delete_issue'),
     url(r'^issues/(\d+)/tasks/add/$', 'views.edit_task', name='add_task'),
     url(r'^issues/(\d+)/tasks/(\d+)/$', 'views.edit_task', name='edit_task'),
     url(r'^tasks/(\d+)/delete/$', 'views.delete_task', name='delete_task'),
@@ -21,4 +22,7 @@ urlpatterns = patterns('apps.it',
     url(r'^stuff/(\d+)/$', 'views.view_asset', name='view_asset'),
 
     url(r'^files/(\d+)/delete/$', 'views.delete_file', name='delete_file'),
+
+    url(r'^tags/$', 'views.tags', name='tags'),
+    url(r'^tags/(\d+)/delete/$', 'views.delete_tag', name='delete_tag'),
 )

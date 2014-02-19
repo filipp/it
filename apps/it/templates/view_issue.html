@@ -1,66 +1,81 @@
 {% extends "default.html" %}
 {% load bootstrap3 %}
 {% load humanize %}
-{% load i18n %}
 {% load it_tags %}
+{% load i18n %}
 
 {% block main %}
+<div class="page-header">
+  <h3>{{ issue.title }}</h3>
+  <span>{{ issue.created_by}} @ {{ issue.created_at }}</span>
+</div>
+
 {{ issue.description|markdown }}
-<span>{{ issue.created_by}} @ {{ issue.created_at }}</span>
-<hr/>
-<a class="btn btn-default" href="{% url 'edit_issue' issue.pk %}">{% bootstrap_icon "pencil" %} Edit</a>
-<a class="btn btn-default metoo" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} Me too!</a>
+
+<form method="post" action="{% url 'tags' %}">
+  {% csrf_token %}
+  <input type="text" name="tag" class="tags autocomplete form-control input-sm" placeholder="{% trans "Add tag" %}" data-source="/tags/?oid={{ issue.pk|safe }}&amp;ctype={{ issue.get_content_type.pk|safe }}" autocomplete="off"/>
+  <input type="hidden" name="object_id" value="{{ issue.pk|safe }}"/>
+  <input type="hidden" name="content_type_id" value="{{ issue.get_content_type.pk|safe }}"/>
+  <input type="submit" class="hidden"/>
+</form>
+<div class="dragarea">
+{% for t in issue.tags.all %}
+  <span class="label label-info draggable" data-id="{{ t.pk|safe }}" data-destroy="{% url 'delete_tag' t.pk %}"><i class="fa fa-tag"></i> {{ t.tag }}</span>
+{% endfor %}
+</div>
 {% for i in issue.task_set.all %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <i class="fa fa-user fa-fw"></i> <span class="muted">{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
-  </div>
-  <div class="panel-body">
-    {{ i.description|markdown }}
-    <hr/>
-    <div class="btn-group">
-      <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+<div class="media">
+  <a class="pull-left" href="#">
+    <img class="media-object img-thumbnail" src="{{ STATIC_URL }}images/bubble-128.png" alt="...">
+  </a>
+  <div class="media-body">
+    <h4 class="media-heading pull-left">
+      <span>{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
+    </h4>
+    <div class="btn-group pull-right" style="display:none">
+      <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
         <i class="fa fa-cog"></i> 
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu" role="menu">
-        <li><a href="{% url 'edit_task' issue.pk i.pk %}">Edit</a>
-        </li>
-        <li><a href="{% url 'delete_task' i.pk %}" class="confirm">Delete</a>
-        </li>
-        <li><a href="#">Something else here</a>
-        </li>
-        <li class="divider"></li>
-        <li><a href="#">Separated link</a>
-        </li>
+        <li><a href="{% url 'edit_task' issue.pk i.pk %}">{% trans "Edit" %}</a></li>
+        <li><a href="{% url 'delete_issue' issue.pk %}" class="confirm">{% trans "Delete" %}</a></li>
       </ul>
     </div>
+    <div class="clearfix"></div>
+    {{ i.description|markdown }}
   </div>
 </div>
 {% endfor %}
-</div>
 {% endblock main %}
 
 {% block inspector %}
-<h4>Users</h4>
+{% if 1 %}
+  <a class="btn btn-sm btn-default btn-primary active" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} {% trans "Me too!" %}</a>
+{% else %}
+  <a class="btn btn-sm btn-default btn-primary" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} {% trans "Me too!" %}</a>
+{% endif %}
+
+<a class="btn btn-sm btn-default btn-warning" href="{% url 'edit_issue' issue.pk %}">{% bootstrap_icon "pencil" %} {% trans "Edit" %}</a>
+<a class="btn btn-sm btn-default btn-danger confirm" href="{% url 'delete_issue' issue.pk %}">{% bootstrap_icon "trash" %} {% trans "Delete" %}</a>
+  <hr/>
+  <h4>{% trans "Users" %}</h4>
 {% for f in issue.users.all %}
-  <a href=""><span class="label label-info label"><i class="fa fa-user fa-fw"></i> {{ f }}</span></a>
-  <a class="btn btn-default btn-sm" href="{% url 'remove_user' issue.pk f.pk %}">{% bootstrap_icon "trash" %}</a>
+  <span class="label label-info label"><i class="fa fa-user fa-fw"></i> {{ f }} <a class="close" href="{% url 'remove_user' issue.pk f.pk %}">&times;</a></span>
 {% endfor %}
-<hr/>
-<h4>Files</h4>
+  <hr/>
+  <h4>{% trans "Files" %}</h4>
 {% for f in issue.files.all %}
-  <a href=""><span class="label label-info"><i class="fa fa-file"></i> {{ f }}</span></a>
-  <a class="btn btn-default btn-sm" href="{% url 'delete_file' f.pk %}">{% bootstrap_icon "trash" %}</a>
+  <span class="label label-success"><i class="fa fa-file"></i> {{ f }} <a class="close" href="{% url 'delete_file' f.pk %}">&times;</a></span>
 {% endfor %}
 <hr/>
-<form action="{% url 'add_files' issue.pk %}" class="dropzone" id="my-awesome-dropzone">
+<form action="{% url 'add_files' issue.pk %}" class="dropzone well" id="my-awesome-dropzone">
   {% csrf_token %}
 </form>
-<hr/>
 <form action="{% url 'add_task' issue.pk %}" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  <button class="btn btn-primary" type="submit">Add Task</button>
+  <button class="btn btn-primary pull-right" type="submit">Add Task</button>
 </form>
 {% endblock inspector %}

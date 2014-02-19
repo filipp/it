@@ -1,3 +1,5 @@
+{% load i18n %}
+{% load it_tags %}
 {% load bootstrap3 %}
 <!DOCTYPE html>
 <html>
@@ -8,6 +10,7 @@
   <title>IT</title>
 
   <!-- Core CSS - Include with every page -->
+  <link href="{{ STATIC_URL }}js/ui/themes/base/jquery-ui.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}font-awesome/css/font-awesome.css" rel="stylesheet">
 
@@ -17,16 +20,37 @@
   <!-- SB Admin CSS - Include with every page -->
   <link href="{{ STATIC_URL }}css/sb-admin.css" rel="stylesheet">
   <style type="text/css">
+    .page-header {
+      margin-top: 0;
+    }
+    .media-object {
+      width: 64px;
+    }
+    .media .btn-group {
+      position: absolute;
+      right: 25px;
+    }
+    .hidden {
+      visibility: hidden;
+      height: 1px;
+    }
+    .dragarea {
+      padding: 8px;
+      margin-top: 10px;
+      border: 1px dashed #ccc;
+    }
+    .label .close {
+      float: none;
+      font-size: 14pt;
+      line-height: 20px;
+    }
     .dropzone {
-      height: 100px;
+      height: 80px;
       width: 100%;
       padding: 10px;
-      border: 1px #ccc dashed;
-      border-radius: 13px;
-      background: url({{ STATIC_URL }}images/arrow-down-512.png) no-repeat;
+      background-image: url({{ STATIC_URL }}images/arrow-down-512.png) no-repeat;
       background-size: 80px 80px;
       background-position: center;
-      background-color: #eee;
     }
     #page-wrapper {
       margin-right: 300px;
@@ -42,6 +66,9 @@
       list-style: none;
       margin: 0;
       padding: 0;
+    }
+    .nav-tabs {
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -229,10 +256,10 @@
             <!-- /input-group -->
           </li>
           <li class="active">
-            <a href="{% url 'home' %}?state=NEW"><i class="fa fa-dashboard fa-fw"></i> Issues <span class="badge pull-right">{{ issue_count }}</span></a>
+            <a href="{% url 'home' %}?state=NEW"><i class="fa fa-dashboard fa-fw"></i> {% trans "Issues" %} <span class="badge pull-right">{% new_issue_count request %}</span></a>
           </li>
-          <li><a href="{% url 'list_stuff' %}?kind=SERVER"><i class="fa fa-hdd-o fa-fw"></i> Assets</a></li>
-          <li><a href="{% url 'home' %}"><i class="fa fa-book fa-fw"></i> Documentation</a></li>
+          <li><a href="{% url 'list_stuff' %}?kind=SERVER"><i class="fa fa-hdd-o fa-fw"></i> {% trans "Assets" %} <span class="badge pull-right">{% new_asset_count request %}</span></a></li>
+          <li><a href="{% url 'home' %}"><i class="fa fa-book fa-fw"></i> {% trans "Documentation" %}</a></li>
           <li><a href="{% url 'home' %}"><i class="fa fa-users fa-fw"></i> Users</a></li>
         </ul>
         <!-- /#side-menu -->
@@ -243,9 +270,9 @@
 
     <div id="page-wrapper">
       <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12" style="padding:0">
+          {% bootstrap_messages %}
           {% block main %}
-          <h1 class="page-header">Blank</h1>
           {% endblock main %}
         </div>
         <!-- /.col-lg-12 -->
@@ -253,7 +280,6 @@
       <!-- /.row -->
       <nav class="navbar-default navbar-static-side sidebar-right" role="navigation">
         <div class="sidebar-collapse">
-        {% bootstrap_messages %}
         {% block inspector %}
           INSPECTOR CONTENT
         {% endblock inspector %}
@@ -272,6 +298,7 @@
   <script src="{{ STATIC_URL }}js/dropzone.js"></script>
   <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
   <script src="{{ STATIC_URL }}js/plugins/metisMenu/jquery.metisMenu.js"></script>
+  <script src="{{ STATIC_URL }}js/ui/ui/minified/jquery-ui.min.js"></script>
 
   <!-- Page-Level Plugin Scripts - Blank -->
 
@@ -280,6 +307,13 @@
 
   <!-- Page-Level Demo Scripts - Blank - Use for reference -->
   <script type="text/javascript">
+    $('.media').hover(
+    function(){
+      $(this).find('.btn-group').fadeIn();
+    },
+    function(){
+      $('.btn-group').fadeOut();
+    });
     Dropzone.options.myAwesomeDropzone = {
       paramName: "attachment", // The name that will be used to transfer the file
       maxFilesize: 2, // MB
@@ -295,6 +329,15 @@
         document.location = '/search/?q=' + $(this).val();
       }
     });
+    $('.autocomplete').each(function(i, e){
+      $(e).autocomplete({source: $(e).data('source')});
+    });
+    $('.draggable').draggable({opacity: 0.75, zIndex: 100, cursor: 'pointer'});
+    $('.dragarea').droppable({
+      out: function(e, ui) {
+        $.ajax($(ui.draggable).data('destroy'));
+        $(ui.draggable).remove();
+    }});
   </script>
   </body>
 

@@ -39,19 +39,22 @@ class Attachment(AbstractGenericItem):
 
     def __unicode__(self):
         import os
-        return os.path.basename(self.attachment.name)
+        path = os.path.basename(self.attachment.name)
+        return u'%s ...' % path[0:35]
 
 
 class Article(AbstractGenericItem):
     note = models.TextField()
     tags = generic.GenericRelation(TaggedItem)
-    title = models.CharField(max_length=256, default='New Article')
+    title = models.CharField(max_length=256, default=_('New Article'))
     
 
 
 class Issue(models.Model):
+    title = models.CharField(max_length=256, default=_('New Issue'))
     description = models.TextField()
     priority = models.PositiveIntegerField(default=0)
+    assigned_to = models.ForeignKey(User, null=True, related_name='issues')
     users = models.ManyToManyField(
         User,
         null=True,
@@ -73,6 +76,9 @@ class Issue(models.Model):
     def __unicode__(self):
         return self.description
 
+    def get_content_type(self):
+        return ContentType.objects.get_for_model(self)
+
     def get_absolute_url(self):
         return '/issues/%d/' % self.pk
 
@@ -89,7 +95,7 @@ class Task(models.Model):
                                     blank=True,
                                     related_name='tasks')
     created_at = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateField(null=True, blank=True, editable=False)
+    due_date = models.DateField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True, editable=False)
     files = generic.GenericRelation(Attachment)
@@ -113,7 +119,6 @@ class Asset(models.Model):
         ('NETWORK', _('Networking')),
         ('SOFTWARE', _('Software')),
         ('PRINTER', _('Printer')),
-        ('SERVICE', _('Service')),
     )
     kind = models.CharField(choices=KINDS, max_length=128, default=KINDS[0][0])
     tags = generic.GenericRelation(TaggedItem)

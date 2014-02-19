@@ -3,41 +3,12 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from apps.it.models import Issue, Task, Attachment, User, Asset
-
-
-class AssetForm(forms.ModelForm):
-    class Meta:
-        model = Asset
-
-class SimpleAssetForm(forms.ModelForm):
-    class Meta:
-        model = Asset
-        fields = ['name', 'description', 'kind']
-
-class AttachmentForm(forms.ModelForm):
-    class Meta:
-        model = Attachment
-
-class IssueForm(forms.ModelForm):
-    class Meta:
-        model = Issue
-
-
-class SimpleIssueForm(forms.ModelForm):
-    class Meta:
-        model = Issue
-        fields = ['description', 'priority']
-
-class TaskForm(forms.ModelForm):
-    class Meta:
-        model = Task
-
+from .forms import *
+from .models import (Issue, Task, Attachment, User, Asset, TaggedItem)
 
 def home(request):
     state = request.GET.get('state')
     issues = Issue.objects.all()
-    issue_count = issues.count()
 
     if state:
         issues = issues.filter(state=state)
@@ -63,7 +34,8 @@ def search(request):
 def view_issue(request, pk):
     issue = Issue.objects.get(pk=pk)
     task = Task(issue=issue, created_by_id=1)
-    form = TaskForm(instance=task)
+    form = SimpleTaskForm(instance=task)
+
     return render(request, "view_issue.html", locals())
 
 def edit_issue(request, pk=None):
@@ -128,7 +100,9 @@ def add_files(request, pk):
     return HttpResponse('Cheerio!')
 
 def delete_issue(request, pk):
-    pass
+    Issue.objects.filter(pk=pk).delete()
+    messages.success(request, 'Issue deleted')
+    return redirect(home)
 
 def delete_task(request, pk):
     task = Task.objects.get(pk=pk)
@@ -159,7 +133,6 @@ def list_stuff(request):
 def view_asset(request, pk):
     return render(request, "view_asset.html", locals())
 
-
 def delete_file(request, pk):
     file = Attachment.objects.get(pk=pk)
     file.delete()
@@ -172,3 +145,30 @@ def remove_user(request, issue, user):
     issue.users.remove(user)
     messages.success(request, 'User removed from issue')
     return redirect(issue)
+
+def tags(request):
+    import json
+    if request.method == 'POST':
+        name = request.POST.get('tag')
+        object_id = request.POST.get('object_id')
+        content_type_id = request.POST.get('content_type_id')
+        tag = TaggedItem(tag=name, object_id=object_id)
+        tag.content_type_id = content_type_id
+        tag.created_by_id = 1
+        tag.save()
+        messages.success(request, 'Tag %s added' % name)
+        return redirect(request.META['HTTP_REFERER'])
+
+    query = TaggedItem.objects.all()
+    oid = request.GET.get('oid')
+    ctype = request.GET.get('ctype')
+
+    if oid and ctype :
+        query = query.exclude(object_id=oid, content_type=ctype)
+
+    tags = query.values_list('tag', flat=True)
+    return HttpResponse(json.dumps(list(tags)), content_type="application/javascript")
+
+def delete_tag(request, pk):
+    TaggedItem.objects.filter(pk=pk).delete()
+    return HttpResponse('OK')
