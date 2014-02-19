@@ -1,0 +1,29 @@
+{% extends "default.html" %}
+{% load bootstrap3 %}
+{% load i18n %}
+
+{% block main %}
+
+<ul class="nav nav-tabs">
+{% for k, v in categories %}
+  <li{%if k == kind %} class="active"{% endif %}><a href="?kind={{ k }}">{{ v }}</a></li>
+{% endfor %}
+</ul>
+
+<table>
+  <tbody>
+    {% for i in object_list %}
+      <td>{{ i.name }}</td>
+      <td>{{ i.description }}</td>
+    {% endfor %}
+  </tbody>
+</table>  
+{% endblock main %}
+
+{% block inspector %}
+  <form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button class="btn btn-default btn-primary">{% trans "Add Asset" %}</button>
+  </form>
+{% endblock inspector %}

@@ -1,12 +1,26 @@
 {% extends "default.html" %}
+{% load bootstrap3 %}
+{% load i18n %}
 
 {% block main %}
-    <table class="table">
-    {% for i in issues %}
-        <tr>
-            <td><a href="{% url 'view_issue' i.pk %}">{{ i.description }}</a></td>
-            <td><a class="btn btn-default btn-sm metoo" href="{% url 'metoo' i.pk 1 %}">Me too!</a></td>
-        </tr>
-    {% endfor %}
-    </table>
+<ul class="nav nav-tabs">
+{% for k, v in states %}
+  <li{%if k == state %} class="active"{% endif %}><a href="?state={{ k }}">{{ v }}</a></li>
+{% endfor %}
+</ul>
+<table class="table">
+  {% for i in issues %}
+  <tr>
+    <td><a href="{% url 'view_issue' i.pk %}">{{ i.description }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock main %}
+
+{% block inspector %}
+<form action="" method="post" class="form">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button type="submit" class="btn btn-primary">{% trans "Add Issue" %}</button>
+</form>
+{% endblock inspector %}

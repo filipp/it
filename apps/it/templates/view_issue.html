@@ -1,18 +1,66 @@
 {% extends "default.html" %}
 {% load bootstrap3 %}
+{% load humanize %}
 {% load i18n %}
+{% load it_tags %}
 
 {% block main %}
-    <p>{{ issue.description }}</p>
-    {% for i in issue.task_set.all %}
-        <p>{{ i.description }}</p>
-    {% endfor %}
-    {% for f in files %}
-        <span class="label">{{ f.attachment.name }}</span>
-    {% endfor %}
-    <form action="{% url 'add_files' issue.pk %}" class="dropzone" id="my-awesome-dropzone">
-    </form>
-    <a class="btn btn-default" href="{% url 'edit_issue' issue.pk %}">Edit</a>
-    <a class="btn btn-default" href="{% url 'add_task' issue.pk %}">Add Task</a>
-    <a class="btn btn-default metoo" href="{% url 'metoo' issue.pk 1 %}">Me too!</a>
+{{ issue.description|markdown }}
+<span>{{ issue.created_by}} @ {{ issue.created_at }}</span>
+<hr/>
+<a class="btn btn-default" href="{% url 'edit_issue' issue.pk %}">{% bootstrap_icon "pencil" %} Edit</a>
+<a class="btn btn-default metoo" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} Me too!</a>
+{% for i in issue.task_set.all %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <i class="fa fa-user fa-fw"></i> <span class="muted">{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
+  </div>
+  <div class="panel-body">
+    {{ i.description|markdown }}
+    <hr/>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown">
+        <i class="fa fa-cog"></i> 
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="{% url 'edit_task' issue.pk i.pk %}">Edit</a>
+        </li>
+        <li><a href="{% url 'delete_task' i.pk %}" class="confirm">Delete</a>
+        </li>
+        <li><a href="#">Something else here</a>
+        </li>
+        <li class="divider"></li>
+        <li><a href="#">Separated link</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endfor %}
+</div>
 {% endblock main %}
+
+{% block inspector %}
+<h4>Users</h4>
+{% for f in issue.users.all %}
+  <a href=""><span class="label label-info label"><i class="fa fa-user fa-fw"></i> {{ f }}</span></a>
+  <a class="btn btn-default btn-sm" href="{% url 'remove_user' issue.pk f.pk %}">{% bootstrap_icon "trash" %}</a>
+{% endfor %}
+<hr/>
+<h4>Files</h4>
+{% for f in issue.files.all %}
+  <a href=""><span class="label label-info"><i class="fa fa-file"></i> {{ f }}</span></a>
+  <a class="btn btn-default btn-sm" href="{% url 'delete_file' f.pk %}">{% bootstrap_icon "trash" %}</a>
+{% endfor %}
+<hr/>
+<form action="{% url 'add_files' issue.pk %}" class="dropzone" id="my-awesome-dropzone">
+  {% csrf_token %}
+</form>
+<hr/>
+<form action="{% url 'add_task' issue.pk %}" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button class="btn btn-primary" type="submit">Add Task</button>
+</form>
+{% endblock inspector %}

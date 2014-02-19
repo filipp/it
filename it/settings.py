@@ -36,6 +36,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'south', 'bootstrap3',
     'apps.it',
 )
@@ -86,3 +87,5 @@ STATIC_URL = '/static/'
 TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
