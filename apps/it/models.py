@@ -51,10 +51,13 @@ class Article(AbstractGenericItem):
 
 
 class Issue(models.Model):
-    title = models.CharField(max_length=256, default=_('New Issue'))
     description = models.TextField()
+    title = models.CharField(max_length=256, default=_('New Issue'))
     priority = models.PositiveIntegerField(default=0)
-    assigned_to = models.ForeignKey(User, null=True, related_name='issues')
+    assigned_to = models.ForeignKey(User,
+                                    null=True,
+                                    blank=True,
+                                    related_name='issues')
     users = models.ManyToManyField(
         User,
         null=True,
@@ -85,6 +88,7 @@ class Issue(models.Model):
     class Meta:
         ordering = ['-priority', 'created_at']
 
+
 class Task(models.Model):
     description = models.TextField()
     issue = models.ForeignKey(Issue, null=True, editable=False)
@@ -105,6 +109,7 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
 
 class Asset(models.Model):
     name = models.CharField(max_length=256, default='New Asset')

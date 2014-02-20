@@ -14,7 +14,7 @@ def markdown(text):
 
 @register.simple_tag
 def new_issue_count(request):
-    return safestring.mark_safe('14')
+    return request.user.issues.all().count()
 
 @register.simple_tag
 def new_asset_count(request):
