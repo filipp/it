@@ -10,7 +10,7 @@
   <title>IT</title>
 
   <!-- Core CSS - Include with every page -->
-  <link href="{{ STATIC_URL }}js/ui/themes/base/jquery-ui.css" rel="stylesheet">
+  <link href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet"></link>
   <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
   <link href="{{ STATIC_URL }}font-awesome/css/font-awesome.css" rel="stylesheet">
 
@@ -225,12 +225,7 @@
             <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
           </a>
           <ul class="dropdown-menu dropdown-user">
-            <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-            </li>
-            <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-            </li>
-            <li class="divider"></li>
-            <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+            <li><a href="{% url 'logout' %}"><i class="fa fa-sign-out fa-fw"></i> {% trans "Logout" %}</a>
             </li>
           </ul>
           <!-- /.dropdown-user -->
@@ -259,8 +254,8 @@
             <a href="{% url 'home' %}?state=NEW"><i class="fa fa-dashboard fa-fw"></i> {% trans "Issues" %} <span class="badge pull-right">{% new_issue_count request %}</span></a>
           </li>
           <li><a href="{% url 'list_stuff' %}?kind=SERVER"><i class="fa fa-hdd-o fa-fw"></i> {% trans "Assets" %} <span class="badge pull-right">{% new_asset_count request %}</span></a></li>
-          <li><a href="{% url 'home' %}"><i class="fa fa-book fa-fw"></i> {% trans "Documentation" %}</a></li>
-          <li><a href="{% url 'home' %}"><i class="fa fa-users fa-fw"></i> Users</a></li>
+          <li><a href="{% url 'docs' %}"><i class="fa fa-book fa-fw"></i> {% trans "Documentation" %}</a></li>
+          <li><a href="{% url 'users' %}"><i class="fa fa-users fa-fw"></i> {% trans "Users" %}</a></li>
         </ul>
         <!-- /#side-menu -->
       </div>
@@ -298,7 +293,7 @@
   <script src="{{ STATIC_URL }}js/dropzone.js"></script>
   <script src="{{ STATIC_URL }}js/bootstrap.min.js"></script>
   <script src="{{ STATIC_URL }}js/plugins/metisMenu/jquery.metisMenu.js"></script>
-  <script src="{{ STATIC_URL }}js/ui/ui/minified/jquery-ui.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
   <!-- Page-Level Plugin Scripts - Blank -->
 
@@ -306,39 +301,7 @@
   <script src="{{ STATIC_URL }}js/sb-admin.js"></script>
 
   <!-- Page-Level Demo Scripts - Blank - Use for reference -->
-  <script type="text/javascript">
-    $('.media').hover(
-    function(){
-      $(this).find('.btn-group').fadeIn();
-    },
-    function(){
-      $('.btn-group').fadeOut();
-    });
-    Dropzone.options.myAwesomeDropzone = {
-      paramName: "attachment", // The name that will be used to transfer the file
-      maxFilesize: 2, // MB
-    };
-    $('.confirm').click(function(e){
-      if(confirm('Are you sure?')) {
-        return true;
-      }
-      e.preventDefault();
-    });
-    $('.searchfield').on('keyup', function(e){
-      if(e.keyCode == 13) {
-        document.location = '/search/?q=' + $(this).val();
-      }
-    });
-    $('.autocomplete').each(function(i, e){
-      $(e).autocomplete({source: $(e).data('source')});
-    });
-    $('.draggable').draggable({opacity: 0.75, zIndex: 100, cursor: 'pointer'});
-    $('.dragarea').droppable({
-      out: function(e, ui) {
-        $.ajax($(ui.draggable).data('destroy'));
-        $(ui.draggable).remove();
-    }});
-  </script>
+  <script type="text/javascript" src="{{ STATIC_URL }}js/it.js"></script>
   </body>
 
 </html>

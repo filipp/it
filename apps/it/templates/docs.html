@@ -1,0 +1,32 @@
+{% extends "default.html" %}
+{% load bootstrap3 %}
+{% load humanize %}
+{% load it_tags %}
+{% load i18n %}
+
+{% block main %}
+{% for i in object_list %}
+    <div class="media">
+      <a class="pull-left" href="#">
+        <img class="media-object img-thumbnail" src="{{ STATIC_URL }}images/bubble-128.png" alt="...">
+      </a>
+      <div class="media-body">
+        <h5 class="media-heading pull-left">
+          <i class="fa fa-user fa-fw"></i> <span>{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
+        </h5>
+        <div class="btn-group pull-right" style="display:none">
+          <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-cog"></i> 
+            <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="{% url 'edit_task' issue.pk i.pk %}">{% trans "Edit" %}</a></li>
+            <li><a href="{% url 'delete_issue' issue.pk %}" class="confirm">{% trans "Delete" %}</a></li>
+          </ul>
+        </div>
+        <div class="clearfix"></div>
+        {{ i.description|markdown }}
+      </div>
+    </div>
+{% endfor %}
+{% endblock main %}

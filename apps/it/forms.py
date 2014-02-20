@@ -48,3 +48,13 @@ class SimpleTaskForm(forms.ModelForm):
         widgets = {
             'description': SmallTextarea,
         }
+
+class LoginForm(forms.Form):
+    username = forms.CharField()
+    password = forms.CharField(widget=forms.PasswordInput)
+
+class SimpleUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'password']
+        widgets = {'password': forms.PasswordInput}

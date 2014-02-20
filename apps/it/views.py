@@ -1,10 +1,15 @@
+# -*- coding: utf-8 -*-
+
 from django import forms
+from django.contrib import auth
 from django.contrib import messages
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.utils.translation import ugettext as _
+from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import *
-from .models import (Issue, Task, Attachment, User, Asset, TaggedItem)
+from .models import (Issue, Task, Attachment, User, Asset, Article,
+                    TaggedItem)
 
 def home(request):
     state = request.GET.get('state')
@@ -15,7 +20,7 @@ def home(request):
 
     form = SimpleIssueForm()
     states = Issue.STATES
-    issue = Issue(created_by_id=1)
+    issue = Issue(created_by=request.user)
 
     if request.method == 'POST':
         form = SimpleIssueForm(request.POST, instance=issue)
@@ -33,14 +38,14 @@ def search(request):
 
 def view_issue(request, pk):
     issue = Issue.objects.get(pk=pk)
-    task = Task(issue=issue, created_by_id=1)
+    task = Task(issue=issue, created_by=request.user)
     form = SimpleTaskForm(instance=task)
 
     return render(request, "view_issue.html", locals())
 
 def edit_issue(request, pk=None):
     if pk is None:
-        issue = Issue(created_by_id=1)
+        issue = Issue(created_by=request.user)
     else:
         issue = Issue.objects.get(pk=pk)
 
@@ -58,7 +63,7 @@ def edit_issue(request, pk=None):
 def edit_task(request, issue, pk=None):
     if pk is None:
         task = Task()
-        task.created_by_id = 1
+        task.created_by = request.user
         task.issue = Issue.objects.get(pk=issue)
     else:
         task = Task.objects.get(pk=pk)
@@ -89,7 +94,7 @@ def metoo(request, issue, user):
 
 def add_files(request, pk):
     issue = Issue.objects.get(pk=pk)
-    att = Attachment(content_object=issue, created_by_id=1)
+    att = Attachment(content_object=issue, created_by=request.user)
     form = AttachmentForm(request.POST, request.FILES, instance=att)
 
     if form.is_valid():
@@ -131,6 +136,7 @@ def list_stuff(request):
     return render(request, "list_stuff.html", locals())
 
 def view_asset(request, pk):
+    asset = get_object_or_404(Asset, pk=pk)
     return render(request, "view_asset.html", locals())
 
 def delete_file(request, pk):
@@ -154,7 +160,7 @@ def tags(request):
         content_type_id = request.POST.get('content_type_id')
         tag = TaggedItem(tag=name, object_id=object_id)
         tag.content_type_id = content_type_id
-        tag.created_by_id = 1
+        tag.created_by = request.user
         tag.save()
         messages.success(request, 'Tag %s added' % name)
         return redirect(request.META['HTTP_REFERER'])
@@ -162,13 +168,59 @@ def tags(request):
     query = TaggedItem.objects.all()
     oid = request.GET.get('oid')
     ctype = request.GET.get('ctype')
+    term = request.GET.get('term')
 
     if oid and ctype :
         query = query.exclude(object_id=oid, content_type=ctype)
 
+    if term:
+        query = query.filter(tag__icontains=term)
+
     tags = query.values_list('tag', flat=True)
     return HttpResponse(json.dumps(list(tags)), content_type="application/javascript")
+
+
+def users(request):
+    object_list = User.objects.all()
+    form = SimpleUserForm()
+
+    if request.method == 'POST':
+        form = SimpleUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'User saved')
+
+    return render(request, 'generic_list.html', locals())
 
 def delete_tag(request, pk):
     TaggedItem.objects.filter(pk=pk).delete()
     return HttpResponse('OK')
+
+def login(request):
+    form = LoginForm()
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = auth.authenticate(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password']
+            )
+            if user is not None and user.is_active:
+                auth.login(request, user)
+                messages.success(request, 'Logged in successfully')
+                return redirect(home)
+            else:
+                messages.error(request, 'Login failed')
+
+    return render(request, 'login.html', locals())
+
+def logout(request):
+    auth.logout(request)
+    messages.info(request, _('You have logged out'))
+    return redirect(login)
+
+def docs(request):
+    object_list = Article.objects.all()
+    return render(request, 'docs.html', locals())

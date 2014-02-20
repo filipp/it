@@ -47,6 +47,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'apps.it.login_required_middleware.LoginRequiredMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
@@ -89,3 +90,11 @@ TEMPLATE_LOADERS = (
 )
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
+
+EXEMPT_URLS = []
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+
+# URLs that should work without logging in
+LOGIN_EXEMPT_URLS = [LOGIN_URL.lstrip('/')]

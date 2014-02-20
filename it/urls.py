@@ -25,4 +25,11 @@ urlpatterns = patterns('apps.it',
 
     url(r'^tags/$', 'views.tags', name='tags'),
     url(r'^tags/(\d+)/delete/$', 'views.delete_tag', name='delete_tag'),
+
+    url(r'^users/$', 'views.users', name='users'),
+
+    url(r'^docs/$', 'views.docs', name='docs'),
+
+    url(r'^login/$', 'views.login', name='login'),
+    url(r'^logout/$', 'views.logout', name='logout'),
 )

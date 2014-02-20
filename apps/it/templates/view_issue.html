@@ -30,9 +30,9 @@
     <img class="media-object img-thumbnail" src="{{ STATIC_URL }}images/bubble-128.png" alt="...">
   </a>
   <div class="media-body">
-    <h4 class="media-heading pull-left">
-      <span>{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
-    </h4>
+    <h5 class="media-heading pull-left">
+      <i class="fa fa-user fa-fw"></i> <span>{{ i.created_by }}</span> <i class="fa fa-clock-o fa-fw"></i> {{ i.created_at|naturaltime }}
+    </h5>
     <div class="btn-group pull-right" style="display:none">
       <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown">
         <i class="fa fa-cog"></i> 
