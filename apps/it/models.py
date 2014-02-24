@@ -31,6 +31,7 @@ class TaggedItem(AbstractGenericItem):
         return self.tag
 
     class Meta:
+        ordering = ['tag']
         unique_together = ("content_type", "object_id", "tag",)
 
 
@@ -75,9 +76,22 @@ class Issue(models.Model):
     created_by = models.ForeignKey(User, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    progress = models.PositiveIntegerField(default=0, editable=False)
 
     def __unicode__(self):
         return self.description
+
+    def set_progress(self):
+        self.progress = self.get_progress()
+        self.save()
+
+    def get_progress(self):
+        all = self.task_set.all().count()
+        if all < 1:
+            return 0
+        done = self.task_set.exclude(completed_at=None).count()
+        print done/all*100
+        return done/all*100
 
     def get_content_type(self):
         return ContentType.objects.get_for_model(self)
@@ -104,6 +118,10 @@ class Task(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     files = generic.GenericRelation(Attachment)
 
+    def save(self):
+        super(Task, self).save()
+        self.issue.set_progress()
+
     def __unicode__(self):
         return self.description
 
@@ -116,6 +134,7 @@ class Asset(models.Model):
     description = models.TextField()
     location = models.CharField(max_length=256)
     ip_address = models.IPAddressField(default='')
+    product_url = models.URLField(null=True, blank=True)
     issues = models.ManyToManyField(Issue, null=True)
     files = generic.GenericRelation(Attachment)
     KINDS = (

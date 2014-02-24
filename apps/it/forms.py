@@ -38,7 +38,8 @@ class TaskForm(forms.ModelForm):
         model = Task
         widgets = {
             'description': SmallTextarea,
-            'due_date': SelectDateWidget
+            'due_date': forms.TextInput(attrs={'class': 'datepicker'}),
+            'completed_at': forms.TextInput(attrs={'class': 'datepicker'})
         }
 
 class SimpleTaskForm(forms.ModelForm):

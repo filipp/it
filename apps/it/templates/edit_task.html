@@ -6,6 +6,7 @@
     <form action="" method="post" class="form">
         {% csrf_token %}
         {% bootstrap_form form %}
+        <a class="btn btn-default" href="{{ task.issue.get_absolute_url }}">{% trans "Cancel" %}</a>
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
     </form>
 {% endblock main %}

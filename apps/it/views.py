@@ -170,15 +170,17 @@ def tags(request):
     ctype = request.GET.get('ctype')
     term = request.GET.get('term')
 
-    if oid and ctype :
+    if oid and ctype:
         query = query.exclude(object_id=oid, content_type=ctype)
 
     if term:
         query = query.filter(tag__icontains=term)
 
-    tags = query.values_list('tag', flat=True)
-    return HttpResponse(json.dumps(list(tags)), content_type="application/javascript")
+    # DISTINCT ON fields is not supported by this database backend
+    tags = list()
+    [tags.append(x.tag) for x in query if x.tag not in tags]
 
+    return HttpResponse(json.dumps(tags), content_type="application/javascript")
 
 def users(request):
     object_list = User.objects.all()

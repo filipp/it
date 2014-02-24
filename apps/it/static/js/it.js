@@ -7,7 +7,7 @@ $('.media').hover(
   });
   Dropzone.options.myAwesomeDropzone = {
     paramName: "attachment", // The name that will be used to transfer the file
-    maxFilesize: 2, // MB
+    maxFilesize: 20, // MB
   };
   $('.confirm').click(function(e){
     if(confirm('Are you sure?')) {
@@ -23,10 +23,16 @@ $('.media').hover(
   $('.autocomplete').each(function(i, e){
     $(e).autocomplete({source: $(e).data('source')});
   });
-  $('.draggable').draggable({opacity: 0.75, zIndex: 100, cursor: 'pointer'});
+  $('.draggable').draggable({
+    opacity: 0.75,
+    zIndex: 100,
+    cursor: 'pointer'
+  });
   $('.dragarea').droppable({
     out: function(e, ui) {
       $.ajax($(ui.draggable).data('destroy'));
       $(ui.draggable).remove();
     }
   });
+
+$('.datepicker').datepicker({dateFormat: "yy-mm-dd"});

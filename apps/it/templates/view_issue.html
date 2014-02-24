@@ -51,7 +51,7 @@
 {% endblock main %}
 
 {% block inspector %}
-{% if 1 %}
+{% if request.user in issue.users.all %}
   <a class="btn btn-sm btn-default btn-primary active" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} {% trans "Me too!" %}</a>
 {% else %}
   <a class="btn btn-sm btn-default btn-primary" href="{% url 'metoo' issue.pk 1 %}">{% bootstrap_icon "star" %} {% trans "Me too!" %}</a>
