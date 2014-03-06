@@ -40,7 +40,7 @@
       </button>
       <ul class="dropdown-menu" role="menu">
         <li><a href="{% url 'edit_task' issue.pk i.pk %}">{% trans "Edit" %}</a></li>
-        <li><a href="{% url 'delete_issue' issue.pk %}" class="confirm">{% trans "Delete" %}</a></li>
+        <li><a href="{% url 'delete_task' i.pk %}" class="confirm">{% trans "Delete" %}</a></li>
       </ul>
     </div>
     <div class="clearfix"></div>
